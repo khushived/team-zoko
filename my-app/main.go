@@ -57,13 +57,11 @@ func initRedis() {
 func updateProfileCache(ctx context.Context, profile *Profile) error {
 	userKey := fmt.Sprintf("user:%d", profile.ID)
 	fields := map[string]interface{}{
-		"16":    profile.ID,
 		"name":  profile.Name,
-		"jane@gmail.com": profile.Email,
+		"email": profile.Email,
 	}
 	return rdb.HMSet(ctx, userKey, fields).Err()
 }
-
 
 func createProfile(c *gin.Context) {
 	var newProfile Profile
@@ -102,6 +100,16 @@ func getProfile(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, profile)
+}
+
+func getProfiles(c *gin.Context) {
+	var profiles []Profile
+	result := db.Find(&profiles)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, profiles)
 }
 
 func updateProfile(c *gin.Context) {
@@ -168,20 +176,13 @@ func main() {
 
     // CORS middleware configuration
     config := cors.DefaultConfig()
-    config.AllowOrigins = []string{"http://localhost:3000"}
+    config.AllowOrigins = []string{"http://localhost:3000", "https://teamzoko.netlify.app"}
     r.Use(cors.New(config))
-
-    // Serve frontend files
-    r.Static("/frontend", "./frontend")
-
-    // Route to serve frontend
-    r.GET("/profiles", func(c *gin.Context) {
-        c.File("./frontend/index.html")
-    })
 
     // Routes for APIs
     r.POST("/profiles", createProfile)
     r.GET("/profiles/:id", getProfile)
+    r.GET("/profiles", getProfiles)
     r.PUT("/profiles/:id", updateProfile)
     r.DELETE("/profiles/:id", deleteProfile)
 

@@ -1,26 +1,12 @@
-import ProfileForm from './components/ProfileForm';
+import React from 'react';
+import ProfileManager from './ProfileManager';
 
-const App = () => {
-  const createProfile = async (profile) => {
-    const response = await fetch('http://localhost:3000/profiles', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(profile),
-    });
-
-    if (!response.ok) {
-      console.error('Failed to create profile');
-    }
-  };
-
+function App() {
   return (
-    <div>
-      <h1>Profile Management</h1>
-      <ProfileForm createProfile={createProfile} />
+    <div className="App">
+      <ProfileManager />
     </div>
   );
-};
+}
 
 export default App;
