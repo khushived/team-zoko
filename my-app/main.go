@@ -8,7 +8,7 @@ import (
 	"os"
 	"strconv"
 
-    "github.com/gin-contrib/cors"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 	"github.com/joho/godotenv"
@@ -22,9 +22,11 @@ var (
 )
 
 type Profile struct {
-	ID    uint   `gorm:"primaryKey"`
-	Name  string
-	Email string
+	ID     uint   `gorm:"primaryKey"`
+	Name   string `json:"name"`
+	Email  string `json:"email"`
+	Gender string `json:"gender"`
+	Age    int    `json:"age"`
 }
 
 func init() {
@@ -57,8 +59,10 @@ func initRedis() {
 func updateProfileCache(ctx context.Context, profile *Profile) error {
 	userKey := fmt.Sprintf("user:%d", profile.ID)
 	fields := map[string]interface{}{
-		"name":  profile.Name,
-		"email": profile.Email,
+		"name":   profile.Name,
+		"email":  profile.Email,
+		"gender": profile.Gender,
+		"age":    profile.Age,
 	}
 	return rdb.HMSet(ctx, userKey, fields).Err()
 }
@@ -100,16 +104,6 @@ func getProfile(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, profile)
-}
-
-func getProfiles(c *gin.Context) {
-	var profiles []Profile
-	result := db.Find(&profiles)
-	if result.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, profiles)
 }
 
 func updateProfile(c *gin.Context) {
@@ -167,27 +161,34 @@ func deleteProfile(c *gin.Context) {
 }
 
 func main() {
-    // Initialize Redis and DB
-    initRedis()
-    initDB()
+	// Initialize Redis and DB
+	initRedis()
+	initDB()
 
-    // Create a new Gin router instance
-    r := gin.Default()
+	// Create a new Gin router instance
+	r := gin.Default()
 
-    // CORS middleware configuration
-    config := cors.DefaultConfig()
-    config.AllowOrigins = []string{"http://localhost:3000", "https://teamzoko.netlify.app"}
-    r.Use(cors.New(config))
+	// CORS middleware configuration
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{"http://localhost:3000"}
+	r.Use(cors.New(config))
 
-    // Routes for APIs
-    r.POST("/profiles", createProfile)
-    r.GET("/profiles/:id", getProfile)
-    r.GET("/profiles", getProfiles)
-    r.PUT("/profiles/:id", updateProfile)
-    r.DELETE("/profiles/:id", deleteProfile)
+	// Serve frontend files
+	r.Static("/frontend", "./frontend")
 
-    // Start server
-    if err := r.Run(":8080"); err != nil {
-        log.Fatalf("Failed to start server: %v", err)
-    }
+	// Route to serve frontend
+	r.GET("/profiles", func(c *gin.Context) {
+		c.File("./frontend/index.html")
+	})
+
+	// Routes for APIs
+	r.POST("/profiles", createProfile)
+	r.GET("/profiles/:id", getProfile)
+	r.PUT("/profiles/:id", updateProfile)
+	r.DELETE("/profiles/:id", deleteProfile)
+
+	// Start server
+	if err := r.Run(":8080"); err != nil {
+		log.Fatalf("Failed to start server: %v", err)
+	}
 }

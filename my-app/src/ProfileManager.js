@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const API_URL = 'https://teamzoko.netlify.app/';  // Change this to your deployed API URL
+const API_URL = 'http://localhost:8080';  // Change this to your deployed API URL
 
 const ProfileManager = () => {
     const [profiles, setProfiles] = useState([]);
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
+    const [gender, setGender] = useState('');
+    const [age, setAge] = useState('');
     const [updateId, setUpdateId] = useState(null);
 
     useEffect(() => {
@@ -19,17 +21,21 @@ const ProfileManager = () => {
     };
 
     const createProfile = async () => {
-        const response = await axios.post(`${API_URL}/profiles`, { name, email });
+        const response = await axios.post(`${API_URL}/profiles`, { name, email, gender, age });
         setProfiles([...profiles, response.data]);
         setName('');
         setEmail('');
+        setGender('');
+        setAge('');
     };
 
     const updateProfile = async (id) => {
-        const response = await axios.put(`${API_URL}/profiles/${id}`, { name, email });
+        const response = await axios.put(`${API_URL}/profiles/${id}`, { name, email, gender, age });
         setProfiles(profiles.map(profile => profile.ID === id ? response.data : profile));
         setName('');
         setEmail('');
+        setGender('');
+        setAge('');
         setUpdateId(null);
     };
 
@@ -65,13 +71,27 @@ const ProfileManager = () => {
                     onChange={(e) => setEmail(e.target.value)}
                     required
                 />
+                <input
+                    type="text"
+                    placeholder="Gender"
+                    value={gender}
+                    onChange={(e) => setGender(e.target.value)}
+                    required
+                />
+                <input
+                    type="number"
+                    placeholder="Age"
+                    value={age}
+                    onChange={(e) => setAge(e.target.value)}
+                    required
+                />
                 <button type="submit">{updateId ? 'Update' : 'Create'} Profile</button>
             </form>
             <ul>
                 {profiles.map(profile => (
                     <li key={profile.ID}>
-                        {profile.Name} ({profile.Email})
-                        <button onClick={() => { setName(profile.Name); setEmail(profile.Email); setUpdateId(profile.ID); }}>Update</button>
+                        {profile.Name} ({profile.Email}, {profile.Gender}, {profile.Age})
+                        <button onClick={() => { setName(profile.Name); setEmail(profile.Email); setGender(profile.Gender); setAge(profile.Age); setUpdateId(profile.ID); }}>Update</button>
                         <button onClick={() => deleteProfile(profile.ID)}>Delete</button>
                     </li>
                 ))}
