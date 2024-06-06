@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 
+    "github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 	"github.com/joho/godotenv"
@@ -158,20 +159,34 @@ func deleteProfile(c *gin.Context) {
 }
 
 func main() {
-	// Initialize Redis and DB
-	initRedis()
-	initDB()
+    // Initialize Redis and DB
+    initRedis()
+    initDB()
 
-	r := gin.Default()
+    // Create a new Gin router instance
+    r := gin.Default()
 
-	// Routes
-	r.POST("/profiles", createProfile)
-	r.GET("/profiles/:id", getProfile)
-	r.PUT("/profiles/:id", updateProfile)
-	r.DELETE("/profiles/:id", deleteProfile)
+    // CORS middleware configuration
+    config := cors.DefaultConfig()
+    config.AllowOrigins = []string{"http://localhost:3000"}
+    r.Use(cors.New(config))
 
-	// Start server
-	if err := r.Run(":8080"); err != nil {
-		log.Fatalf("Failed to start server: %v", err)
-	}
+    // Serve frontend files
+    r.Static("/frontend", "./frontend")
+
+    // Route to serve frontend
+    r.GET("/profiles", func(c *gin.Context) {
+        c.File("./frontend/index.html")
+    })
+
+    // Routes for APIs
+    r.POST("/profiles", createProfile)
+    r.GET("/profiles/:id", getProfile)
+    r.PUT("/profiles/:id", updateProfile)
+    r.DELETE("/profiles/:id", deleteProfile)
+
+    // Start server
+    if err := r.Run(":8080"); err != nil {
+        log.Fatalf("Failed to start server: %v", err)
+    }
 }
