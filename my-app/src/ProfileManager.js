@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8080';  // Change this to your deployed API URL
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 
 const ProfileManager = () => {
     const [profiles, setProfiles] = useState([]);
@@ -85,12 +85,13 @@ const ProfileManager = () => {
                     onChange={(e) => setAge(e.target.value)}
                     required
                 />
-                <button type="submit">{updateId ? 'Update' : 'Create'} Profile</button>
+                <button type="submit">{updateId ? 'Update Profile' : 'Create Profile'}</button>
             </form>
+            <h2>All Profiles</h2>
             <ul>
                 {profiles.map(profile => (
                     <li key={profile.ID}>
-                        {profile.Name} ({profile.Email}, {profile.Gender}, {profile.Age})
+                        {profile.Name} ({profile.Email}) - {profile.Gender}, {profile.Age} years old
                         <button onClick={() => { setName(profile.Name); setEmail(profile.Email); setGender(profile.Gender); setAge(profile.Age); setUpdateId(profile.ID); }}>Update</button>
                         <button onClick={() => deleteProfile(profile.ID)}>Delete</button>
                     </li>

@@ -169,8 +169,13 @@ func main() {
 	r := gin.Default()
 
 	// CORS middleware configuration
-	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{"http://localhost:3000"}
+	config := cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000", "https://teamzoko.netlify.app"}, // Update with your Netlify URL
+		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+	}
 	r.Use(cors.New(config))
 
 	// Serve frontend files
