@@ -1,3 +1,4 @@
+// ProfileForm.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -10,37 +11,34 @@ const ProfileForm = () => {
   });
 
   const [profiles, setProfiles] = useState([]);
+  const apiUrl = 'https://team-zoko.onrender.com'; // Update with your actual Render backend URL
 
   useEffect(() => {
-    axios.get('http://localhost:8080/profiles')
+    // Fetch all profiles from the backend when the component mounts
+    axios.get(apiUrl)
       .then(response => {
-        console.log('Fetched profiles:', response.data);
-        if (Array.isArray(response.data)) {
-          setProfiles(response.data);
-          console.log('Profiles state updated:', response.data);
-        } else {
-          console.error('Unexpected response format:', response.data);
-        }
+        setProfiles(response.data);
       })
       .catch(error => {
         console.error('Error fetching profiles:', error);
       });
-  }, []);
+  }, [apiUrl]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
-      [name]: name === 'age' ? parseInt(value, 10) : value,
+      [name]: value,
     }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    axios.post('http://localhost:8080/profiles', formData)
+    // Submit the form data to create a new profile
+    axios.post(apiUrl, formData)
       .then(response => {
-        console.log('Created profile:', response.data);
         setProfiles([...profiles, response.data]);
+        // Clear form data after successful submission
         setFormData({
           name: '',
           email: '',
@@ -95,18 +93,19 @@ const ProfileForm = () => {
         </div>
         <button type="submit">Submit</button>
       </form>
-      
+
       <div>
         <h2>All Profiles</h2>
         <ul>
-          {profiles.length === 0 ? (
-            <li>No profiles found</li>
-          ) : (
-            profiles.map((profile, index) => (
-              <li key={index}>
+          {/* Display all profiles */}
+          {profiles.length > 0 ? (
+            profiles.map((profile) => (
+              <li key={profile.id}>
                 {profile.name} - {profile.email} - {profile.gender} - {profile.age}
               </li>
             ))
+          ) : (
+            <li>No profiles found</li>
           )}
         </ul>
       </div>
