@@ -1,104 +1,117 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8080';
+const ProfileForm = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    gender: '',
+    age: '',
+  });
 
-const ProfileManager = () => {
-    const [profiles, setProfiles] = useState([]);
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [gender, setGender] = useState('');
-    const [age, setAge] = useState('');
-    const [updateId, setUpdateId] = useState(null);
+  const [profiles, setProfiles] = useState([]);
 
-    useEffect(() => {
-        fetchProfiles();
-    }, []);
-
-    const fetchProfiles = async () => {
-        const response = await axios.get(`${API_URL}/profiles`);
-        setProfiles(response.data);
-    };
-
-    const createProfile = async () => {
-        const response = await axios.post(`${API_URL}/profiles`, { name, email, gender, age });
-        setProfiles([...profiles, response.data]);
-        setName('');
-        setEmail('');
-        setGender('');
-        setAge('');
-    };
-
-    const updateProfile = async (id) => {
-        const response = await axios.put(`${API_URL}/profiles/${id}`, { name, email, gender, age });
-        setProfiles(profiles.map(profile => profile.ID === id ? response.data : profile));
-        setName('');
-        setEmail('');
-        setGender('');
-        setAge('');
-        setUpdateId(null);
-    };
-
-    const deleteProfile = async (id) => {
-        await axios.delete(`${API_URL}/profiles/${id}`);
-        setProfiles(profiles.filter(profile => profile.ID !== id));
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (updateId) {
-            updateProfile(updateId);
+  useEffect(() => {
+    axios.get('http://localhost:8080/profiles')
+      .then(response => {
+        console.log('Fetched profiles:', response.data);
+        if (Array.isArray(response.data)) {
+          setProfiles(response.data);
+          console.log('Profiles state updated:', response.data);
         } else {
-            createProfile();
+          console.error('Unexpected response format:', response.data);
         }
-    };
+      })
+      .catch(error => {
+        console.error('Error fetching profiles:', error);
+      });
+  }, []);
 
-    return (
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: name === 'age' ? parseInt(value, 10) : value,
+    }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    axios.post('http://localhost:8080/profiles', formData)
+      .then(response => {
+        console.log('Created profile:', response.data);
+        setProfiles([...profiles, response.data]);
+        setFormData({
+          name: '',
+          email: '',
+          gender: '',
+          age: '',
+        });
+      })
+      .catch(error => {
+        console.error('Error creating profile:', error);
+      });
+  };
+
+  return (
+    <div>
+      <h2>Profile Form</h2>
+      <form onSubmit={handleSubmit}>
         <div>
-            <h1>Profile Manager</h1>
-            <form onSubmit={handleSubmit}>
-                <input
-                    type="text"
-                    placeholder="Name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                />
-                <input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                />
-                <input
-                    type="text"
-                    placeholder="Gender"
-                    value={gender}
-                    onChange={(e) => setGender(e.target.value)}
-                    required
-                />
-                <input
-                    type="number"
-                    placeholder="Age"
-                    value={age}
-                    onChange={(e) => setAge(e.target.value)}
-                    required
-                />
-                <button type="submit">{updateId ? 'Update Profile' : 'Create Profile'}</button>
-            </form>
-            <h2>All Profiles</h2>
-            <ul>
-                {profiles.map(profile => (
-                    <li key={profile.ID}>
-                        {profile.Name} ({profile.Email}) - {profile.Gender}, {profile.Age} years old
-                        <button onClick={() => { setName(profile.Name); setEmail(profile.Email); setGender(profile.Gender); setAge(profile.Age); setUpdateId(profile.ID); }}>Update</button>
-                        <button onClick={() => deleteProfile(profile.ID)}>Delete</button>
-                    </li>
-                ))}
-            </ul>
+          <label>Name:</label>
+          <input
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+          />
         </div>
-    );
+        <div>
+          <label>Email:</label>
+          <input
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+          />
+        </div>
+        <div>
+          <label>Gender:</label>
+          <select name="gender" value={formData.gender} onChange={handleChange}>
+            <option value="">Select</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div>
+          <label>Age:</label>
+          <input
+            type="number"
+            name="age"
+            value={formData.age}
+            onChange={handleChange}
+          />
+        </div>
+        <button type="submit">Submit</button>
+      </form>
+      
+      <div>
+        <h2>All Profiles</h2>
+        <ul>
+          {profiles.length === 0 ? (
+            <li>No profiles found</li>
+          ) : (
+            profiles.map((profile, index) => (
+              <li key={index}>
+                {profile.name} - {profile.email} - {profile.gender} - {profile.age}
+              </li>
+            ))
+          )}
+        </ul>
+      </div>
+    </div>
+  );
 };
 
-export default ProfileManager;
+export default ProfileForm;
