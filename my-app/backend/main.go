@@ -5,9 +5,9 @@ import (
     "fmt"
     "log"
     "net/http"
-    "time"
     "os"
     "strconv"
+    "time"
 
     "github.com/gin-gonic/gin"
     "github.com/gin-contrib/cors"
@@ -22,10 +22,10 @@ var (
 )
 
 type Profile struct {
-    ID    uint   `gorm:"primaryKey"`
-    Name  string
-    Email string
-    Age   int
+    ID     uint   `gorm:"primaryKey"`
+    Name   string
+    Email  string
+    Age    int
     Gender string
 }
 
@@ -52,10 +52,10 @@ func initRedis() {
 func updateProfileCache(ctx context.Context, profile *Profile) error {
     userKey := fmt.Sprintf("user:%d", profile.ID)
     fields := map[string]interface{}{
-        "ID":    profile.ID,
-        "name":  profile.Name,
-        "email": profile.Email,
-        "age":   profile.Age,
+        "ID":     profile.ID,
+        "name":   profile.Name,
+        "email":  profile.Email,
+        "age":    profile.Age,
         "gender": profile.Gender,
     }
     return rdb.HMSet(ctx, userKey, fields).Err()
@@ -109,7 +109,7 @@ func updateProfile(c *gin.Context) {
     // Update database
     var profile Profile
     if err := db.First(&profile, id).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Profile not found"})
+        c.JSON(http.StatusNotFound, gin.H{"error": "Profile not found"})
         return
     }
     db.Model(&profile).Updates(updatedProfile)
@@ -133,7 +133,7 @@ func deleteProfile(c *gin.Context) {
     // Delete from database
     var profile Profile
     if err := db.First(&profile, id).Error; err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Profile not found"})
+        c.JSON(http.StatusNotFound, gin.H{"error": "Profile not found"})
         return
     }
     db.Delete(&profile)
@@ -151,7 +151,7 @@ func main() {
 
     // CORS configuration
     config := cors.Config{
-        AllowOrigins:     []string{"https://main--teamzoko.netlify.app/"}, 
+        AllowOrigins:     []string{"https://main--teamzoko.netlify.app"}, // Replace with your Netlify URL
         AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
         AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
         ExposeHeaders:    []string{"Content-Length"},
@@ -163,9 +163,13 @@ func main() {
 
     // Routes
     router.POST("/profiles", createProfile)
-    router.GET("/profiles/:id", getAllProfiles)
+    router.GET("/profiles", getAllProfiles) // Fixed route to get all profiles
     router.PUT("/profiles/:id", updateProfile)
     router.DELETE("/profiles/:id", deleteProfile)
 
-    router.Run(":5432")
+    port := os.Getenv("PORT")
+    if port == "" {
+        port = "8080" // Default to port 8080 if not specified
+    }
+    router.Run(":" + port)
 }
