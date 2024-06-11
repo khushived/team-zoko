@@ -5,10 +5,12 @@ import (
     "fmt"
     "log"
     "net/http"
+    "time"
     "os"
     "strconv"
 
     "github.com/gin-gonic/gin"
+    "github.com/gin-contrib/cors"
     "github.com/go-redis/redis/v8"
     "gorm.io/driver/postgres"
     "gorm.io/gorm"
@@ -145,36 +147,25 @@ func deleteProfile(c *gin.Context) {
 }
 
 func main() {
-    // Initialize Redis and DB
-    initRedis()
-    initDB()
+    router := gin.Default()
 
-    r := gin.Default()
+    // CORS configuration
+    config := cors.Config{
+        AllowOrigins:     []string{"https://main--teamzoko.netlify.app/"}, 
+        AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+        AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+        ExposeHeaders:    []string{"Content-Length"},
+        AllowCredentials: true,
+        MaxAge: 12 * time.Hour,
+    }
 
-    // CORS middleware
-    func CORSMiddleware() gin.HandlerFunc {
-		return func(c *gin.Context) {
-			c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-			c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-			c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-	
-			if c.Request.Method == "OPTIONS" {
-				c.AbortWithStatus(204)
-				return
-			}
-	
-			c.Next()
-		}
-	}	
+    router.Use(cors.New(config))
 
     // Routes
-    r.POST("/profiles", createProfile)
-    r.GET("/profiles", getAllProfiles)
-    r.PUT("/profiles/:id", updateProfile)
-    r.DELETE("/profiles/:id", deleteProfile)
+    router.POST("/profiles", createProfile)
+    router.GET("/profiles/:id", getAllProfiles)
+    router.PUT("/profiles/:id", updateProfile)
+    router.DELETE("/profiles/:id", deleteProfile)
 
-    // Start server
-    if err := r.Run(":8080"); err != nil {
-        log.Fatalf("Failed to start server: %v", err)
-    }
+    router.Run(":5432")
 }
