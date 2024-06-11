@@ -162,6 +162,9 @@ func main() {
     router.Use(cors.New(config))
 
     // Routes
+    router.GET("/", func(c *gin.Context) {
+        c.String(http.StatusOK, "Welcome to Team Zoko!")
+    })    
     router.POST("/profiles", createProfile)
     router.GET("/profiles", getAllProfiles) // Fixed route to get all profiles
     router.PUT("/profiles/:id", updateProfile)
