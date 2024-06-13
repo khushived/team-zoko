@@ -158,6 +158,16 @@ func deleteProfile(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Profile deleted successfully"})
 }
 
+func getAllProfiles(c *gin.Context) {
+	var profiles []Profile
+	result := db.Find(&profiles)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, profiles)
+}
+
 func main() {
 	// Initialize Redis and DB
 	initRedis()
@@ -170,6 +180,7 @@ func main() {
 	r.GET("/api/profiles/:id", getProfile)
 	r.PUT("/api/profiles/:id", updateProfile)
 	r.DELETE("/api/profiles/:id", deleteProfile)
+	r.GET("/api/profiles", getAllProfiles)
 
 	// Start server
 	if err := r.Run(":8080"); err != nil {
