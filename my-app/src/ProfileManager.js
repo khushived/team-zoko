@@ -16,6 +16,7 @@ const ProfileForm = () => {
     // Fetch all profiles from the backend when the component mounts
     axios.get(apiUrl)
       .then(response => {
+        console.log('Fetched profiles:', response.data); // Log the response data
         setProfiles(response.data);
       })
       .catch(error => {
@@ -36,6 +37,7 @@ const ProfileForm = () => {
     // Submit the form data to create a new profile
     axios.post(apiUrl, formData)
       .then(response => {
+        console.log('Profile created:', response.data); // Log the created profile
         setProfiles([...profiles, response.data]);
         // Clear form data after successful submission
         setFormData({
@@ -102,7 +104,7 @@ const ProfileForm = () => {
           {/* Display all profiles */}
           {profiles.length > 0 ? (
             profiles.map((profile) => (
-              <li key={profile.ID}>
+              <li key={profile.id}> {/* Ensure the correct key field */}
                 {profile.name} - {profile.email} - {profile.gender} - {profile.age}
               </li>
             ))
