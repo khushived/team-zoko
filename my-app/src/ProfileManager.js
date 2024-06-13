@@ -1,4 +1,3 @@
-// ProfileForm.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -11,7 +10,7 @@ const ProfileForm = () => {
   });
 
   const [profiles, setProfiles] = useState([]);
-  const apiUrl = 'https://team-zoko.onrender.com'; // Update with your actual Render backend URL
+  const apiUrl = 'https://team-zoko.onrender.com/api/profiles'; // Update with your actual Render backend URL
 
   useEffect(() => {
     // Fetch all profiles from the backend when the component mounts
@@ -100,7 +99,7 @@ const ProfileForm = () => {
           {/* Display all profiles */}
           {profiles.length > 0 ? (
             profiles.map((profile) => (
-              <li key={profile.id}>
+              <li key={profile.ID}>
                 {profile.name} - {profile.email} - {profile.gender} - {profile.age}
               </li>
             ))
