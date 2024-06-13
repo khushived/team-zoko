@@ -21,7 +21,7 @@ const ProfileForm = () => {
       .catch(error => {
         console.error('Error fetching profiles:', error);
       });
-  }, [apiUrl]);
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -51,9 +51,9 @@ const ProfileForm = () => {
   };
 
   return (
-    <div>
+    <div style={{ padding: '20px' }}>
       <h2>Profile Form</h2>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} style={{ marginBottom: '20px' }}>
         <div>
           <label>Name:</label>
           <input
@@ -61,6 +61,7 @@ const ProfileForm = () => {
             name="name"
             value={formData.name}
             onChange={handleChange}
+            required
           />
         </div>
         <div>
@@ -70,11 +71,12 @@ const ProfileForm = () => {
             name="email"
             value={formData.email}
             onChange={handleChange}
+            required
           />
         </div>
         <div>
           <label>Gender:</label>
-          <select name="gender" value={formData.gender} onChange={handleChange}>
+          <select name="gender" value={formData.gender} onChange={handleChange} required>
             <option value="">Select</option>
             <option value="male">Male</option>
             <option value="female">Female</option>
@@ -88,6 +90,7 @@ const ProfileForm = () => {
             name="age"
             value={formData.age}
             onChange={handleChange}
+            required
           />
         </div>
         <button type="submit">Submit</button>
