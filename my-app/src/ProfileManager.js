@@ -10,7 +10,7 @@ const ProfileForm = () => {
   });
 
   const [profiles, setProfiles] = useState([]);
-  const apiUrl = 'https://team-zoko.onrender.com/api/profiles'; // Update with your actual Render backend URL
+  const apiUrl = 'https://team-zoko.onrender.com/profiles'; // Update with your actual Render backend URL
 
   useEffect(() => {
     // Fetch all profiles from the backend when the component mounts

@@ -29,12 +29,20 @@ type Profile struct {
 func init() {
 	// Load environment variables from .env file
 	if err := godotenv.Load(); err != nil {
-		log.Printf("Error loading .env file: %v", err)
+		log.Fatalf("Error loading .env file: %v", err)
+	}
+
+	// Ensure all critical environment variables are set
+	requiredEnvVars := []string{"DB_HOST", "DB_USER", "DB_PASSWORD", "DB_NAME", "REDIS_URL"}
+	for _, envVar := range requiredEnvVars {
+		if os.Getenv(envVar) == "" {
+			log.Fatalf("Environment variable %s is not set", envVar)
+		}
 	}
 }
 
 func initDB() {
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=5432 sslmode=require",
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=5432 sslmode=disable",
 		os.Getenv("DB_HOST"), os.Getenv("DB_USER"), os.Getenv("DB_PASSWORD"), os.Getenv("DB_NAME"))
 	var err error
 	db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
@@ -62,7 +70,11 @@ func updateProfileCache(ctx context.Context, profile *Profile) error {
 		"name":  profile.Name,
 		"email": profile.Email,
 	}
-	return rdb.HMSet(ctx, userKey, fields).Err()
+	err := rdb.HMSet(ctx, userKey, fields).Err()
+	if err != nil {
+		log.Printf("Error updating cache for user %d: %v", profile.ID, err)
+	}
+	return err
 }
 
 func getAllProfiles(c *gin.Context) {
