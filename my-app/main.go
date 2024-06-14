@@ -194,7 +194,7 @@ func main() {
 
 	// Routes
 	r.POST("/api/profiles", createProfile)
-	r.GET("/api/profiles", getAllProfiles)  // Add this line to handle GET all profiles
+	r.GET("v1/api/profiles", getAllProfiles)  // Add this line to handle GET all profiles
 	r.GET("/api/profiles/:id", getProfile)
 	r.PUT("/api/profiles/:id", updateProfile)
 	r.DELETE("/api/profiles/:id", deleteProfile)
