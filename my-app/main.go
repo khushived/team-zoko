@@ -84,6 +84,9 @@ func getAllProfiles(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
 		return
 	}
+
+	log.Printf("Fetched profiles: %+v", profiles) // Log the fetched profiles
+
 	c.JSON(http.StatusOK, profiles)
 }
 
@@ -93,6 +96,8 @@ func createProfile(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
+	log.Printf("Received new profile: %+v", newProfile) // Log the received profile
 
 	result := db.Create(&newProfile)
 	if result.Error != nil {
