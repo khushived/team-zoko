@@ -103,18 +103,33 @@ const ProfileForm = () => {
 
       <div>
         <h2>All Profiles</h2>
-        <ul>
-          {/* Display all profiles */}
-          {profiles.length > 0 ? (
-            profiles.map((profile) => (
-              <li key={profile.id}> {/* Ensure the correct key field */}
-                {profile.name} - {profile.email} - {profile.gender} - {profile.age}
-              </li>
-            ))
-          ) : (
-            <li>No profiles found</li>
-          )}
-        </ul>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Gender</th>
+              <th>Age</th>
+            </tr>
+          </thead>
+          <tbody>
+            {/* Display all profiles */}
+            {profiles.length > 0 ? (
+              profiles.map((profile) => (
+                <tr key={profile.id}> {/* Ensure the correct key field */}
+                  <td>{profile.name}</td>
+                  <td>{profile.email}</td>
+                  <td>{profile.gender}</td>
+                  <td>{profile.age}</td>
+                </tr>
+              ))
+            ) : (
+              <tr>
+                <td colSpan="4">No profiles found</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
       </div>
     </div>
   );
