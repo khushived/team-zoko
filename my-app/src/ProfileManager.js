@@ -14,14 +14,17 @@ const ProfileForm = () => {
 
   useEffect(() => {
     // Fetch all profiles from the backend when the component mounts
-    axios.get(apiUrl)
-      .then(response => {
+    const fetchProfiles = async () => {
+      try {
+        const response = await axios.get(apiUrl);
         console.log('Fetched profiles:', response.data); // Log the response data
         setProfiles(response.data);
-      })
-      .catch(error => {
+      } catch (error) {
         console.error('Error fetching profiles:', error);
-      });
+      }
+    };
+
+    fetchProfiles();
   }, []);
 
   const handleChange = (e) => {
@@ -32,25 +35,24 @@ const ProfileForm = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log('Form data to be submitted:', formData); // Log the form data
 
-    axios.post(apiUrl, formData)
-      .then(response => {
-        console.log('Profile created:', response.data); // Log the created profile
-        setProfiles([...profiles, response.data]);
-        // Clear form data after successful submission
-        setFormData({
-          name: '',
-          email: '',
-          gender: '',
-          age: '',
-        });
-      })
-      .catch(error => {
-        console.error('Error creating profile:', error);
+    try {
+      const response = await axios.post(apiUrl, formData);
+      console.log('Profile created:', response.data); // Log the created profile
+      setProfiles((prevProfiles) => [...prevProfiles, response.data]);
+      // Clear form data after successful submission
+      setFormData({
+        name: '',
+        email: '',
+        gender: '',
+        age: '',
       });
+    } catch (error) {
+      console.error('Error creating profile:', error);
+    }
   };
 
   return (
