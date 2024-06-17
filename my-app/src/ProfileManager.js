@@ -38,8 +38,6 @@ const ProfileForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('Form data to be submitted:', formData); // Log the form data
-
     try {
       const response = await axios.post(apiUrl, formData);
       console.log('Profile created:', response.data); // Log the created profile
@@ -55,6 +53,7 @@ const ProfileForm = () => {
       console.error('Error creating profile:', error);
     }
   };
+
 
   return (
     <div style={{ padding: '20px' }}>
