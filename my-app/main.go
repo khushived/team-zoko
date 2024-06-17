@@ -192,15 +192,29 @@ func main() {
 
 	r := gin.Default()
 
+	// CORS middleware
+	r.Use(func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(http.StatusNoContent)
+			return
+		}
+		c.Next()
+	})
+
 	// Routes
 	r.POST("/api/profiles", createProfile)
-	r.GET("/api/profiles", getAllProfiles)  // Add this line to handle GET all profiles
+	r.GET("/api/profiles", getAllProfiles)
 	r.GET("/api/profiles/:id", getProfile)
 	r.PUT("/api/profiles/:id", updateProfile)
 	r.DELETE("/api/profiles/:id", deleteProfile)
 
 	// Start server
-	if err := r.Run(":8080"); err != nil {
+	port := ":8080"
+	log.Printf("Starting server on port %s", port)
+	if err := r.Run(port); err != nil {
 		log.Fatalf("Failed to start server: %v", err)
 	}
 }
