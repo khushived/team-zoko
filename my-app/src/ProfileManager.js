@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import 'my-app/src/styles.css';
+import './styles.css';
 
 const ProfileForm = () => {
   const [formData, setFormData] = useState({
