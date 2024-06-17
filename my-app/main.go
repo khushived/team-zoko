@@ -24,6 +24,8 @@ type Profile struct {
 	ID    uint   `gorm:"primaryKey"`
 	Name  string `json:"name"`
 	Email string `json:"email"`
+	Gender string `json:"gender"` 
+	Age    int    `json:"age"`  
 }
 
 func init() {
