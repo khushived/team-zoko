@@ -21,11 +21,11 @@ var (
 )
 
 type Profile struct {
-	ID    uint   `gorm:"primaryKey"`
-	Name  string `json:"name"`
-	Email string `json:"email"`
-	Gender string `json:"gender"` 
-	Age    int    `json:"age"`  
+	ID     uint   `gorm:"primaryKey"`
+	Name   string `json:"name"`
+	Email  string `json:"email"`
+	Gender string `json:"gender"`
+	Age    int    `json:"age"`
 }
 
 func init() {
@@ -78,19 +78,19 @@ func updateProfileCache(ctx context.Context, profile *Profile) error {
 	}
 	return err
 }
+
 func getAllProfiles(c *gin.Context) {
-    var profiles []Profile
-    result := db.Find(&profiles)
-    if result.Error != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
-        return
-    }
+	var profiles []Profile
+	result := db.Find(&profiles)
+	if result.Error != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+		return
+	}
 
-    log.Printf("Fetched profiles: %+v", profiles) // Log the fetched profiles
+	log.Printf("Fetched profiles: %+v", profiles) // Log the fetched profiles
 
-    c.JSON(http.StatusOK, profiles)
+	c.JSON(http.StatusOK, profiles)
 }
-
 
 func createProfile(c *gin.Context) {
 	var newProfile Profile
@@ -165,29 +165,27 @@ func updateProfile(c *gin.Context) {
 
 func deleteProfile(c *gin.Context) {
 	idStr := c.Param("id")
-	log.Printf("Received request to delete profile with id: %s", idStr) // Log the id
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-	  c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
-	  return
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+		return
 	}
-  
+
 	// Delete from database
 	var profile Profile
 	if err := db.First(&profile, id).Error; err != nil {
-	  c.JSON(http.StatusNotFound, gin.H{"error": "Profile not found"})
-	  return
+		c.JSON(http.StatusNotFound, gin.H{"error": "Profile not found"})
+		return
 	}
 	db.Delete(&profile)
-  
+
 	// Delete from cache
 	if err := rdb.Del(context.Background(), fmt.Sprintf("user:%d", id)).Err(); err != nil {
-	  log.Printf("Error deleting profile from cache: %v", err)
+		log.Printf("Error deleting profile from cache: %v", err)
 	}
-  
-	c.JSON(http.StatusOK, gin.H{"message": "Profile deleted successfully"})
-  }
 
+	c.JSON(http.StatusOK, gin.H{"message": "Profile deleted successfully"})
+}
 
 func main() {
 	// Initialize Redis and DB

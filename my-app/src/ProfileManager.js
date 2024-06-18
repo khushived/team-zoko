@@ -55,7 +55,7 @@ const ProfileManager = () => {
 
       let response;
       if (id) {
-        console.log('Updating profile with id:', id); // Log the id being updated
+        console.log('Updating profile with id:', id);
         response = await axios.put(`${apiUrl}/${id}`, profileData);
         console.log('Profile updated:', response.data);
         setProfiles((prevProfiles) =>
@@ -105,7 +105,7 @@ const ProfileManager = () => {
       }
     }
   };
-  
+
   return (
     <div style={{ padding: '20px' }}>
       <h2>Profile Manager</h2>
@@ -180,7 +180,7 @@ const ProfileManager = () => {
                   <td>{profile.gender}</td>
                   <td>{profile.age}</td>
                   <td>
-                    <button onClick={() => handleEditClick(profile.id)}>Edit</button>
+                    <button onClick={() => handleEditClick(profile)}>Edit</button>
                     <button onClick={() => handleDeleteClick(profile.id)}>Delete</button>
                   </td>
                 </tr>
