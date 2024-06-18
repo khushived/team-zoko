@@ -55,7 +55,7 @@ const ProfileManager = () => {
 
       let response;
       if (id) {
-        console.log('Updating profile:', profileData);
+        console.log('Updating profile with id:', id); // Log the id being updated
         response = await axios.put(`${apiUrl}/${id}`, profileData);
         console.log('Profile updated:', response.data);
         setProfiles((prevProfiles) =>
@@ -94,7 +94,7 @@ const ProfileManager = () => {
 
   const handleDeleteClick = async (id) => {
     try {
-      console.log(`Deleting profile with id: ${id}`);
+      console.log(`Deleting profile with id: ${id}`); // Log the id being deleted
       await axios.delete(`${apiUrl}/${id}`);
       setProfiles(profiles.filter((profile) => profile.id !== id));
     } catch (error) {
