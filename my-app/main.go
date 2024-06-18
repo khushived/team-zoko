@@ -78,19 +78,19 @@ func updateProfileCache(ctx context.Context, profile *Profile) error {
 	}
 	return err
 }
-
 func getAllProfiles(c *gin.Context) {
-	var profiles []Profile
-	result := db.Find(&profiles)
-	if result.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
-		return
-	}
+    var profiles []Profile
+    result := db.Find(&profiles)
+    if result.Error != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+        return
+    }
 
-	log.Printf("Fetched profiles: %+v", profiles) // Log the fetched profiles
+    log.Printf("Fetched profiles: %+v", profiles) // Log the fetched profiles
 
-	c.JSON(http.StatusOK, profiles)
+    c.JSON(http.StatusOK, profiles)
 }
+
 
 func createProfile(c *gin.Context) {
 	var newProfile Profile

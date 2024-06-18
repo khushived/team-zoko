@@ -4,7 +4,7 @@ import './components/style.css';
 
 const ProfileManager = () => {
   const [formData, setFormData] = useState({
-    id: null, // Initialize id as null
+    id: null,
     name: '',
     email: '',
     gender: '',
@@ -15,11 +15,10 @@ const ProfileManager = () => {
   const apiUrl = 'https://team-zoko.onrender.com/api/profiles'; // Update with your actual Render backend URL
 
   useEffect(() => {
-    // Fetch all profiles from the backend when the component mounts
     const fetchProfiles = async () => {
       try {
         const response = await axios.get(apiUrl);
-        console.log('Fetched profiles:', response.data); // Log the response data
+        console.log('Fetched profiles:', response.data);
         setProfiles(response.data);
       } catch (error) {
         console.error('Error fetching profiles:', error);
@@ -51,12 +50,10 @@ const ProfileManager = () => {
         name,
         email,
         gender,
-        age: parseInt(age), // Ensure age is parsed to an integer
+        age: parseInt(age),
       };
 
-      // Determine whether to create a new profile or update an existing one
       if (id) {
-        // Update existing profile
         console.log('Updating profile:', profileData);
         const response = await axios.put(`${apiUrl}/${id}`, profileData);
         console.log('Profile updated:', response.data);
@@ -66,14 +63,12 @@ const ProfileManager = () => {
           )
         );
       } else {
-        // Create new profile
         console.log('Creating profile:', profileData);
         const response = await axios.post(apiUrl, profileData);
-        console.log('Profile created:', response.data); // Log the created profile
+        console.log('Profile created:', response.data);
         setProfiles((prevProfiles) => [...prevProfiles, response.data]);
       }
 
-      // Clear form data after successful submission
       setFormData({
         id: null,
         name: '',
@@ -87,19 +82,18 @@ const ProfileManager = () => {
   };
 
   const handleEditClick = (profile) => {
-    // Populate form data with the profile to edit
     setFormData({
       id: profile.id,
       name: profile.name,
       email: profile.email,
       gender: profile.gender,
-      age: String(profile.age), // Convert age to string for input field
+      age: String(profile.age),
     });
   };
 
   const handleDeleteClick = async (id) => {
     try {
-      console.log(`Deleting profile with id: ${id}`); // Log the id being deleted
+      console.log(`Deleting profile with id: ${id}`);
       await axios.delete(`${apiUrl}/${id}`);
       setProfiles(profiles.filter((profile) => profile.id !== id));
     } catch (error) {
