@@ -4,6 +4,7 @@ import './components/style.css';
 
 const ProfileManager = () => {
   const [formData, setFormData] = useState({
+    id: null, // Initialize id as null
     name: '',
     email: '',
     gender: '',
@@ -39,7 +40,7 @@ const ProfileManager = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const { name, email, gender, age } = formData;
+      const { id, name, email, gender, age } = formData;
 
       if (!name || !email || !gender || !age) {
         console.error('All fields are required');
@@ -47,21 +48,21 @@ const ProfileManager = () => {
       }
 
       const profileData = {
-        name: formData.name,
-        email: formData.email,
-        gender: formData.gender,
-        age: parseInt(formData.age), // Ensure age is parsed to an integer
+        name,
+        email,
+        gender,
+        age: parseInt(age), // Ensure age is parsed to an integer
       };
 
       // Determine whether to create a new profile or update an existing one
-      if (formData.id) {
+      if (id) {
         // Update existing profile
         console.log('Updating profile:', profileData);
-        const response = await axios.put(`${apiUrl}/${formData.id}`, profileData);
+        const response = await axios.put(`${apiUrl}/${id}`, profileData);
         console.log('Profile updated:', response.data);
         setProfiles((prevProfiles) =>
           prevProfiles.map((profile) =>
-            profile.id === formData.id ? response.data : profile
+            profile.id === id ? response.data : profile
           )
         );
       } else {
@@ -74,6 +75,7 @@ const ProfileManager = () => {
 
       // Clear form data after successful submission
       setFormData({
+        id: null,
         name: '',
         email: '',
         gender: '',
@@ -153,7 +155,7 @@ const ProfileManager = () => {
             required
           />
         </div>
-        <button type="submit">Submit</button>
+        <button type="submit">{formData.id ? 'Update' : 'Submit'}</button>
       </form>
 
       <div>
@@ -161,6 +163,7 @@ const ProfileManager = () => {
         <table>
           <thead>
             <tr>
+              <th>ID</th>
               <th>Name</th>
               <th>Email</th>
               <th>Gender</th>
@@ -172,6 +175,7 @@ const ProfileManager = () => {
             {profiles.length > 0 ? (
               profiles.map((profile) => (
                 <tr key={profile.id}>
+                  <td>{profile.id}</td>
                   <td>{profile.name}</td>
                   <td>{profile.email}</td>
                   <td>{profile.gender}</td>
@@ -184,7 +188,7 @@ const ProfileManager = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="5">No profiles found</td>
+                <td colSpan="6">No profiles found</td>
               </tr>
             )}
           </tbody>
