@@ -96,45 +96,6 @@ const ProfileManager = () => {
     });
   };
 
-  const handleEditSubmit = async () => {
-    try {
-      const { id, name, email, gender, age } = formData;
-
-      if (!name || !email || !gender || !age) {
-        console.error('All fields are required');
-        return;
-      }
-
-      const profileData = {
-        name,
-        email,
-        gender,
-        age: parseInt(age), // Convert age to integer
-      };
-
-      console.log('Updating profile with id:', id);
-      const response = await axios.put(`${apiUrl}/${id}`, profileData);
-      console.log('Profile updated:', response.data);
-
-      // Update the profiles state with the updated profile
-      setProfiles((prevProfiles) =>
-        prevProfiles.map((profile) =>
-          profile.id === id ? { ...profile, ...response.data } : profile
-        )
-      );
-
-      setFormData({
-        id: null,
-        name: '',
-        email: '',
-        gender: '',
-        age: '',
-      }); // Reset form data after submit
-    } catch (error) {
-      console.error('Error submitting profile:', error);
-    }
-  };
-
   const handleDeleteClick = async (id) => {
     console.log(`Deleting profile with id: ${id}`);
     try {
