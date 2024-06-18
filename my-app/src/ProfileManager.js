@@ -3,14 +3,15 @@ import axios from 'axios';
 import './components/style.css';
 
 const ProfileManager = () => {
-  const [formData, setFormData] = useState({
+  const initialFormData = {
     id: null,
     name: '',
     email: '',
     gender: '',
     age: '',
-  });
+  };
 
+  const [formData, setFormData] = useState(initialFormData);
   const [profiles, setProfiles] = useState([]);
   const apiUrl = 'https://team-zoko.onrender.com/api/profiles'; // Update with your actual Render backend URL
 
@@ -26,7 +27,7 @@ const ProfileManager = () => {
     };
 
     fetchProfiles();
-  }, []); // Empty dependency array ensures this runs only once on component mount
+  }, []);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -70,13 +71,7 @@ const ProfileManager = () => {
         setProfiles((prevProfiles) => [...prevProfiles, response.data]);
       }
 
-      setFormData({
-        id: null,
-        name: '',
-        email: '',
-        gender: '',
-        age: '',
-      });
+      setFormData(initialFormData); // Reset form data after submit
     } catch (error) {
       console.error('Error submitting profile:', error);
     }
@@ -88,7 +83,7 @@ const ProfileManager = () => {
       name: profile.name,
       email: profile.email,
       gender: profile.gender,
-      age: String(profile.age), // Convert age to string for input field
+      age: String(profile.age),
     });
   };
 
