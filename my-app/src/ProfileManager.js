@@ -11,7 +11,6 @@ const ProfileManager = () => {
   });
 
   const [profiles, setProfiles] = useState([]);
-  const [editingProfileId, setEditingProfileId] = useState(null);
   const apiUrl = 'https://team-zoko.onrender.com/api/profiles'; // Update with your actual Render backend URL
 
   useEffect(() => {
@@ -40,20 +39,35 @@ const ProfileManager = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (editingProfileId) {
+      const { name, email, gender, age } = formData;
+
+      if (!name || !email || !gender || !age) {
+        console.error('All fields are required');
+        return;
+      }
+
+      const profileData = {
+        name: formData.name,
+        email: formData.email,
+        gender: formData.gender,
+        age: parseInt(formData.age), // Ensure age is parsed to an integer
+      };
+
+      // Determine whether to create a new profile or update an existing one
+      if (formData.id) {
         // Update existing profile
-        console.log('Updating profile:', formData);
-        const response = await axios.put(`${apiUrl}/${editingProfileId}`, formData);
+        console.log('Updating profile:', profileData);
+        const response = await axios.put(`${apiUrl}/${formData.id}`, profileData);
         console.log('Profile updated:', response.data);
         setProfiles((prevProfiles) =>
           prevProfiles.map((profile) =>
-            profile.id === editingProfileId ? response.data : profile
+            profile.id === formData.id ? response.data : profile
           )
         );
       } else {
         // Create new profile
-        console.log('Creating profile:', formData);
-        const response = await axios.post(apiUrl, formData);
+        console.log('Creating profile:', profileData);
+        const response = await axios.post(apiUrl, profileData);
         console.log('Profile created:', response.data); // Log the created profile
         setProfiles((prevProfiles) => [...prevProfiles, response.data]);
       }
@@ -65,15 +79,20 @@ const ProfileManager = () => {
         gender: '',
         age: '',
       });
-      setEditingProfileId(null);
     } catch (error) {
       console.error('Error submitting profile:', error);
     }
   };
 
   const handleEditClick = (profile) => {
-    setFormData(profile);
-    setEditingProfileId(profile.id);
+    // Populate form data with the profile to edit
+    setFormData({
+      id: profile.id,
+      name: profile.name,
+      email: profile.email,
+      gender: profile.gender,
+      age: String(profile.age), // Convert age to string for input field
+    });
   };
 
   const handleDeleteClick = async (id) => {
@@ -88,7 +107,7 @@ const ProfileManager = () => {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h2>{editingProfileId ? 'Edit Profile' : 'Profile Form'}</h2>
+      <h2>Profile Manager</h2>
       <form onSubmit={handleSubmit} style={{ marginBottom: '20px' }}>
         <div>
           <label>Name:</label>
@@ -134,17 +153,7 @@ const ProfileManager = () => {
             required
           />
         </div>
-        <button type="submit">
-          {editingProfileId ? 'Update' : 'Submit'}
-        </button>
-        {editingProfileId && (
-          <button type="button" onClick={() => {
-            setFormData({ name: '', email: '', gender: '', age: '' });
-            setEditingProfileId(null);
-          }}>
-            Cancel
-          </button>
-        )}
+        <button type="submit">Submit</button>
       </form>
 
       <div>
