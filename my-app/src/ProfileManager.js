@@ -180,7 +180,7 @@ const ProfileManager = () => {
                   <td>{profile.gender}</td>
                   <td>{profile.age}</td>
                   <td>
-                    <button onClick={() => handleEditClick(profile)}>Edit</button>
+                    <button onClick={() => handleEditClick(profile.id)}>Edit</button>
                     <button onClick={() => handleDeleteClick(profile.id)}>Delete</button>
                   </td>
                 </tr>
