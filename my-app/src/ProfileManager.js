@@ -36,10 +36,9 @@ const ProfileManager = () => {
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleCreate = async () => {
     try {
-      const { id, name, email, gender, age } = formData;
+      const { name, email, gender, age } = formData;
 
       if (!name || !email || !gender || !age) {
         console.error('All fields are required');
@@ -53,27 +52,10 @@ const ProfileManager = () => {
         age: parseInt(age), // Convert age to integer
       };
 
-      let response;
-      if (id) {
-        console.log('Updating profile with id:', id);
-        response = await axios.put(`${apiUrl}/${id}`, profileData);
-        console.log('Profile updated:', response.data);
+      const response = await axios.post(apiUrl, profileData);
+      console.log('Profile created:', response.data);
 
-        // Update the profiles state with the updated profile
-        setProfiles((prevProfiles) =>
-          prevProfiles.map((profile) =>
-            profile.id === id ? { ...profile, ...response.data } : profile
-          )
-        );
-      } else {
-        console.log('Creating profile:', profileData);
-        response = await axios.post(apiUrl, profileData);
-        console.log('Profile created:', response.data);
-
-        // Add the newly created profile to the profiles state
-        setProfiles((prevProfiles) => [...prevProfiles, response.data]);
-      }
-
+      setProfiles((prevProfiles) => [...prevProfiles, response.data]);
       setFormData({
         id: null,
         name: '',
@@ -83,6 +65,42 @@ const ProfileManager = () => {
       }); // Reset form data after submit
     } catch (error) {
       console.error('Error submitting profile:', error);
+    }
+  };
+
+  const handleUpdate = async () => {
+    try {
+      const { id, name, email, gender, age } = formData;
+
+      if (!id || !name || !email || !gender || !age) {
+        console.error('All fields are required');
+        return;
+      }
+
+      const profileData = {
+        name,
+        email,
+        gender,
+        age: parseInt(age), // Convert age to integer
+      };
+
+      const response = await axios.put(`${apiUrl}/${id}`, profileData);
+      console.log('Profile updated:', response.data);
+
+      setProfiles((prevProfiles) =>
+        prevProfiles.map((profile) =>
+          profile.id === id ? { ...profile, ...response.data } : profile
+        )
+      );
+      setFormData({
+        id: null,
+        name: '',
+        email: '',
+        gender: '',
+        age: '',
+      }); // Reset form data after submit
+    } catch (error) {
+      console.error('Error updating profile:', error);
     }
   };
 
@@ -97,6 +115,10 @@ const ProfileManager = () => {
   };
 
   const handleDeleteClick = async (id) => {
+    if (!id) {
+      console.error('Invalid ID');
+      return;
+    }
     console.log(`Deleting profile with id: ${id}`);
     try {
       const response = await axios.delete(`${apiUrl}/${id}`);
@@ -113,7 +135,7 @@ const ProfileManager = () => {
   return (
     <div style={{ padding: '20px' }}>
       <h2>Profile Manager</h2>
-      <form onSubmit={handleSubmit} style={{ marginBottom: '20px' }}>
+      <form onSubmit={formData.id ? handleUpdate : handleCreate} style={{ marginBottom: '20px' }}>
         <div>
           <label>Name:</label>
           <input
