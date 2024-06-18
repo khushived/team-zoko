@@ -3,15 +3,14 @@ import axios from 'axios';
 import './components/style.css';
 
 const ProfileManager = () => {
-  const initialFormData = {
+  const [formData, setFormData] = useState({
     id: null,
     name: '',
     email: '',
     gender: '',
     age: '',
-  };
+  });
 
-  const [formData, setFormData] = useState(initialFormData);
   const [profiles, setProfiles] = useState([]);
   const apiUrl = 'https://team-zoko.onrender.com/api/profiles'; // Update with your actual Render backend URL
 
@@ -36,29 +35,30 @@ const ProfileManager = () => {
       [name]: value,
     }));
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const { id, name, email, gender, age } = formData;
-  
+
       if (!name || !email || !gender || !age) {
         console.error('All fields are required');
         return;
       }
-  
+
       const profileData = {
         name,
         email,
         gender,
         age: parseInt(age), // Convert age to integer
       };
-  
+
       let response;
       if (id) {
         console.log('Updating profile with id:', id);
         response = await axios.put(`${apiUrl}/${id}`, profileData);
         console.log('Profile updated:', response.data);
-  
+
         // Update the profiles state with the updated profile
         setProfiles((prevProfiles) =>
           prevProfiles.map((profile) =>
@@ -69,11 +69,11 @@ const ProfileManager = () => {
         console.log('Creating profile:', profileData);
         response = await axios.post(apiUrl, profileData);
         console.log('Profile created:', response.data);
-  
+
         // Add the newly created profile to the profiles state
         setProfiles((prevProfiles) => [...prevProfiles, response.data]);
       }
-  
+
       setFormData({
         id: null,
         name: '',
@@ -85,7 +85,6 @@ const ProfileManager = () => {
       console.error('Error submitting profile:', error);
     }
   };
-  
 
   const handleEditClick = (profile) => {
     setFormData({
@@ -102,9 +101,12 @@ const ProfileManager = () => {
     try {
       const response = await axios.delete(`${apiUrl}/${id}`);
       console.log('Delete response:', response);
-      setProfiles((prevProfiles) => prevProfiles.filter((profile) => profile.id !== id));
+      setProfiles(profiles.filter((profile) => profile.id !== id));
     } catch (error) {
       console.error('Error deleting profile:', error);
+      if (error.response) {
+        console.error('Error response:', error.response.data);
+      }
     }
   };
 
@@ -156,7 +158,12 @@ const ProfileManager = () => {
             required
           />
         </div>
-        <button type="submit">{formData.id ? 'Update' : 'Submit'}</button>
+        <button type="submit">{formData.id ? 'Update' : 'Create'}</button>
+        {formData.id && (
+          <button type="button" onClick={() => setFormData({ id: null, name: '', email: '', gender: '', age: '' })}>
+            Cancel
+          </button>
+        )}
       </form>
 
       <div>

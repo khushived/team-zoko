@@ -140,28 +140,22 @@ func updateProfile(c *gin.Context) {
 		return
 	}
 
+	// Update database
 	var profile Profile
 	if err := db.First(&profile, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Profile not found"})
 		return
 	}
+	db.Model(&profile).Updates(updatedProfile)
 
-	profile.Name = updatedProfile.Name
-	profile.Email = updatedProfile.Email
-	profile.Gender = updatedProfile.Gender
-	profile.Age = updatedProfile.Age
-
-	if err := db.Save(&profile).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
+	// Update cache
 	if err := updateProfileCache(context.Background(), &profile); err != nil {
 		log.Printf("Error updating cache after profile update: %v", err)
 	}
 
 	c.JSON(http.StatusOK, profile)
 }
+
 
 func deleteProfile(c *gin.Context) {
 	idStr := c.Param("id")
