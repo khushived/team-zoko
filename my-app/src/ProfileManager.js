@@ -53,9 +53,10 @@ const ProfileManager = () => {
         age: parseInt(age),
       };
 
+      let response;
       if (id) {
         console.log('Updating profile:', profileData);
-        const response = await axios.put(`${apiUrl}/${id}`, profileData);
+        response = await axios.put(`${apiUrl}/${id}`, profileData);
         console.log('Profile updated:', response.data);
         setProfiles((prevProfiles) =>
           prevProfiles.map((profile) =>
@@ -64,7 +65,7 @@ const ProfileManager = () => {
         );
       } else {
         console.log('Creating profile:', profileData);
-        const response = await axios.post(apiUrl, profileData);
+        response = await axios.post(apiUrl, profileData);
         console.log('Profile created:', response.data);
         setProfiles((prevProfiles) => [...prevProfiles, response.data]);
       }
