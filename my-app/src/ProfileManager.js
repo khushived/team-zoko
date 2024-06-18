@@ -36,46 +36,56 @@ const ProfileManager = () => {
       [name]: value,
     }));
   };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const { id, name, email, gender, age } = formData;
-
+  
       if (!name || !email || !gender || !age) {
         console.error('All fields are required');
         return;
       }
-
+  
       const profileData = {
         name,
         email,
         gender,
         age: parseInt(age), // Convert age to integer
       };
-
+  
       let response;
       if (id) {
         console.log('Updating profile with id:', id);
         response = await axios.put(`${apiUrl}/${id}`, profileData);
         console.log('Profile updated:', response.data);
+  
+        // Update the profiles state with the updated profile
         setProfiles((prevProfiles) =>
           prevProfiles.map((profile) =>
-            profile.id === id ? response.data : profile
+            profile.id === id ? { ...profile, ...response.data } : profile
           )
         );
       } else {
         console.log('Creating profile:', profileData);
         response = await axios.post(apiUrl, profileData);
         console.log('Profile created:', response.data);
+  
+        // Add the newly created profile to the profiles state
         setProfiles((prevProfiles) => [...prevProfiles, response.data]);
       }
-
-      setFormData(initialFormData); // Reset form data after submit
+  
+      setFormData({
+        id: null,
+        name: '',
+        email: '',
+        gender: '',
+        age: '',
+      }); // Reset form data after submit
     } catch (error) {
       console.error('Error submitting profile:', error);
     }
   };
+  
 
   const handleEditClick = (profile) => {
     setFormData({
