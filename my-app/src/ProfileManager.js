@@ -93,15 +93,19 @@ const ProfileManager = () => {
   };
 
   const handleDeleteClick = async (id) => {
+    console.log(`Deleting profile with id: ${id}`);
     try {
-      console.log(`Deleting profile with id: ${id}`); // Log the id being deleted
-      await axios.delete(`${apiUrl}/${id}`);
+      const response = await axios.delete(`${apiUrl}/${id}`);
+      console.log('Delete response:', response);
       setProfiles(profiles.filter((profile) => profile.id !== id));
     } catch (error) {
       console.error('Error deleting profile:', error);
+      if (error.response) {
+        console.error('Error response:', error.response.data);
+      }
     }
   };
-
+  
   return (
     <div style={{ padding: '20px' }}>
       <h2>Profile Manager</h2>
