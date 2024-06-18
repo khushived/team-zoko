@@ -165,27 +165,29 @@ func updateProfile(c *gin.Context) {
 
 func deleteProfile(c *gin.Context) {
 	idStr := c.Param("id")
+	log.Printf("Received request to delete profile with id: %s", idStr) // Log the id
 	id, err := strconv.Atoi(idStr)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
-		return
+	  c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid ID"})
+	  return
 	}
-
+  
 	// Delete from database
 	var profile Profile
 	if err := db.First(&profile, id).Error; err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "Profile not found"})
-		return
+	  c.JSON(http.StatusNotFound, gin.H{"error": "Profile not found"})
+	  return
 	}
 	db.Delete(&profile)
-
+  
 	// Delete from cache
 	if err := rdb.Del(context.Background(), fmt.Sprintf("user:%d", id)).Err(); err != nil {
-		log.Printf("Error deleting profile from cache: %v", err)
+	  log.Printf("Error deleting profile from cache: %v", err)
 	}
-
+  
 	c.JSON(http.StatusOK, gin.H{"message": "Profile deleted successfully"})
-}
+  }
+
 
 func main() {
 	// Initialize Redis and DB

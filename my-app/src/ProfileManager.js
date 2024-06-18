@@ -42,6 +42,7 @@ const ProfileManager = () => {
     try {
       if (editingProfileId) {
         // Update existing profile
+        console.log('Updating profile:', formData);
         const response = await axios.put(`${apiUrl}/${editingProfileId}`, formData);
         console.log('Profile updated:', response.data);
         setProfiles((prevProfiles) =>
@@ -51,6 +52,7 @@ const ProfileManager = () => {
         );
       } else {
         // Create new profile
+        console.log('Creating profile:', formData);
         const response = await axios.post(apiUrl, formData);
         console.log('Profile created:', response.data); // Log the created profile
         setProfiles((prevProfiles) => [...prevProfiles, response.data]);
@@ -76,6 +78,7 @@ const ProfileManager = () => {
 
   const handleDeleteClick = async (id) => {
     try {
+      console.log(`Deleting profile with id: ${id}`); // Log the id being deleted
       await axios.delete(`${apiUrl}/${id}`);
       setProfiles(profiles.filter((profile) => profile.id !== id));
     } catch (error) {
