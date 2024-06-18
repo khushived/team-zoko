@@ -26,7 +26,7 @@ const ProfileManager = () => {
     };
 
     fetchProfiles();
-  }, []);
+  }, []); // Empty dependency array ensures this runs only once on component mount
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -50,7 +50,7 @@ const ProfileManager = () => {
         name,
         email,
         gender,
-        age: parseInt(age),
+        age: parseInt(age), // Convert age to integer
       };
 
       let response;
@@ -88,7 +88,7 @@ const ProfileManager = () => {
       name: profile.name,
       email: profile.email,
       gender: profile.gender,
-      age: String(profile.age),
+      age: String(profile.age), // Convert age to string for input field
     });
   };
 
@@ -97,12 +97,9 @@ const ProfileManager = () => {
     try {
       const response = await axios.delete(`${apiUrl}/${id}`);
       console.log('Delete response:', response);
-      setProfiles(profiles.filter((profile) => profile.id !== id));
+      setProfiles((prevProfiles) => prevProfiles.filter((profile) => profile.id !== id));
     } catch (error) {
       console.error('Error deleting profile:', error);
-      if (error.response) {
-        console.error('Error response:', error.response.data);
-      }
     }
   };
 

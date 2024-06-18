@@ -81,14 +81,12 @@ func updateProfileCache(ctx context.Context, profile *Profile) error {
 
 func getAllProfiles(c *gin.Context) {
 	var profiles []Profile
-	result := db.Find(&profiles)
-	if result.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+	if err := db.Find(&profiles).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	log.Printf("Fetched profiles: %+v", profiles) // Log the fetched profiles
-
+	log.Printf("Fetched profiles: %+v", profiles)
 	c.JSON(http.StatusOK, profiles)
 }
 
@@ -99,15 +97,11 @@ func createProfile(c *gin.Context) {
 		return
 	}
 
-	log.Printf("Received new profile: %+v", newProfile) // Log the received profile
-
-	result := db.Create(&newProfile)
-	if result.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+	if err := db.Create(&newProfile).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
-	// Update cache
 	if err := updateProfileCache(context.Background(), &newProfile); err != nil {
 		log.Printf("Error updating cache after profile creation: %v", err)
 	}
@@ -124,8 +118,7 @@ func getProfile(c *gin.Context) {
 	}
 
 	var profile Profile
-	result := db.First(&profile, id)
-	if result.Error != nil {
+	if err := db.First(&profile, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Profile not found"})
 		return
 	}
@@ -147,15 +140,22 @@ func updateProfile(c *gin.Context) {
 		return
 	}
 
-	// Update database
 	var profile Profile
 	if err := db.First(&profile, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Profile not found"})
 		return
 	}
-	db.Model(&profile).Updates(updatedProfile)
 
-	// Update cache
+	profile.Name = updatedProfile.Name
+	profile.Email = updatedProfile.Email
+	profile.Gender = updatedProfile.Gender
+	profile.Age = updatedProfile.Age
+
+	if err := db.Save(&profile).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
 	if err := updateProfileCache(context.Background(), &profile); err != nil {
 		log.Printf("Error updating cache after profile update: %v", err)
 	}
@@ -171,15 +171,17 @@ func deleteProfile(c *gin.Context) {
 		return
 	}
 
-	// Delete from database
 	var profile Profile
 	if err := db.First(&profile, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Profile not found"})
 		return
 	}
-	db.Delete(&profile)
 
-	// Delete from cache
+	if err := db.Delete(&profile).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+
 	if err := rdb.Del(context.Background(), fmt.Sprintf("user:%d", id)).Err(); err != nil {
 		log.Printf("Error deleting profile from cache: %v", err)
 	}
@@ -188,13 +190,11 @@ func deleteProfile(c *gin.Context) {
 }
 
 func main() {
-	// Initialize Redis and DB
 	initRedis()
 	initDB()
 
 	r := gin.Default()
 
-	// CORS middleware
 	r.Use(func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
 		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
@@ -206,14 +206,12 @@ func main() {
 		c.Next()
 	})
 
-	// Routes
 	r.POST("/api/profiles", createProfile)
 	r.GET("/api/profiles", getAllProfiles)
 	r.GET("/api/profiles/:id", getProfile)
 	r.PUT("/api/profiles/:id", updateProfile)
 	r.DELETE("/api/profiles/:id", deleteProfile)
 
-	// Start server
 	port := ":8080"
 	log.Printf("Starting server on port %s", port)
 	if err := r.Run(port); err != nil {
